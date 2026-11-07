@@ -1,0 +1,2236 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://buntrail.invalid/protocol/v1/services.schema.json",
+  "$ref": "#/$defs/Reply",
+  "$defs": {
+    "Version": {
+      "type": "object",
+      "properties": {
+        "opaque_token": {
+          "type": "string"
+        },
+        "content_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "file_identity": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "opaque_token",
+        "content_digest",
+        "file_identity"
+      ],
+      "additionalProperties": false
+    },
+    "File": {
+      "type": "object",
+      "properties": {
+        "path_base64": {
+          "type": "string"
+        },
+        "resolved_identity": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        }
+      },
+      "required": [
+        "path_base64",
+        "resolved_identity"
+      ],
+      "additionalProperties": false
+    },
+    "Worktree": {
+      "type": "object",
+      "properties": {
+        "path_base64": {
+          "type": "string"
+        },
+        "common_directory_base64": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path_base64",
+        "common_directory_base64"
+      ],
+      "additionalProperties": false
+    },
+    "Head": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "branch"
+            },
+            "name_base64": {
+              "type": "string"
+            },
+            "oid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "name_base64",
+            "oid"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "detached"
+            },
+            "oid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "oid"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "unborn"
+            },
+            "name_base64": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "name_base64"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "GitState": {
+      "type": "object",
+      "properties": {
+        "head": {
+          "$ref": "#/$defs/Head"
+        },
+        "index_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "worktree_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        }
+      },
+      "required": [
+        "head",
+        "index_digest",
+        "worktree_digest"
+      ],
+      "additionalProperties": false
+    },
+    "GitCommand": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "stage"
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "paths"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "unstage"
+            },
+            "paths": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "paths"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "commit"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "checkout"
+            },
+            "reference": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "reference"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "fetch"
+            },
+            "remote": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "remote"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "push"
+            },
+            "remote": {
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "remote",
+            "reference"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "pull_fast_forward"
+            },
+            "remote": {
+              "type": "string"
+            },
+            "reference": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "remote",
+            "reference"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "FileCommand": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "create_directory"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "rename"
+            },
+            "destination": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "destination"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "move"
+            },
+            "destination": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "destination"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "delete"
+            },
+            "confirmed_target": {
+              "type": "string"
+            },
+            "confirmed_path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "confirmed_target",
+            "confirmed_path"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "remove"
+            },
+            "confirmed_target": {
+              "type": "string"
+            },
+            "confirmed_path": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "confirmed_target",
+            "confirmed_path"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Search": {
+      "type": "object",
+      "properties": {
+        "root": {
+          "$ref": "#/$defs/File"
+        },
+        "expression": {
+          "type": "string"
+        },
+        "regex": {
+          "type": "boolean"
+        },
+        "case_sensitive": {
+          "type": "boolean"
+        },
+        "whole_word": {
+          "type": "boolean"
+        },
+        "includes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "excludes": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "hidden": {
+          "type": "boolean"
+        },
+        "ignored": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "root",
+        "expression",
+        "regex",
+        "case_sensitive",
+        "whole_word",
+        "includes",
+        "excludes",
+        "hidden",
+        "ignored"
+      ],
+      "additionalProperties": false
+    },
+    "DiffSource": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "index"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "worktree"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "commit"
+            },
+            "oid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "oid"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Call": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "list"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            }
+          },
+          "required": [
+            "method",
+            "file"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "path_version"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            }
+          },
+          "required": [
+            "method",
+            "file"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "watch"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            }
+          },
+          "required": [
+            "method",
+            "file"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "search"
+            },
+            "request": {
+              "$ref": "#/$defs/Search"
+            }
+          },
+          "required": [
+            "method",
+            "request"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "file_mutate"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            },
+            "expected": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Version"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "command": {
+              "$ref": "#/$defs/FileCommand"
+            }
+          },
+          "required": [
+            "method",
+            "file",
+            "expected",
+            "command"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "discover"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            }
+          },
+          "required": [
+            "method",
+            "file"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "contains"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "file"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "status"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            }
+          },
+          "required": [
+            "method",
+            "worktree"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "diff"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "path_base64": {
+              "type": "string"
+            },
+            "source": {
+              "$ref": "#/$defs/DiffSource"
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "path_base64",
+            "source"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "history"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "refs": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "cursor": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "refs",
+            "cursor"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "git_mutate"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "expected": {
+              "$ref": "#/$defs/GitState"
+            },
+            "command": {
+              "$ref": "#/$defs/GitCommand"
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "expected",
+            "command"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "inspect"
+            }
+          },
+          "required": [
+            "method"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "terminal_open"
+            },
+            "lease_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "directory_base64": {
+              "type": "string"
+            },
+            "shell_base64": {
+              "type": "string"
+            },
+            "columns": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "rows": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            }
+          },
+          "required": [
+            "method",
+            "lease_id",
+            "session_id",
+            "directory_base64",
+            "shell_base64",
+            "columns",
+            "rows"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "terminal_attach"
+            },
+            "lease_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "last_output_sequence": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "method",
+            "lease_id",
+            "session_id",
+            "last_output_sequence"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "terminal_input"
+            },
+            "lease_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          "required": [
+            "method",
+            "lease_id",
+            "session_id"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "terminal_resize"
+            },
+            "lease_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "columns": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            },
+            "rows": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 65535
+            }
+          },
+          "required": [
+            "method",
+            "lease_id",
+            "session_id",
+            "columns",
+            "rows"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "terminal_end"
+            },
+            "lease_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "intent": {
+              "enum": [
+                "explicit_close",
+                "final_workspace_close",
+                "retention_expiry"
+              ]
+            }
+          },
+          "required": [
+            "method",
+            "lease_id",
+            "session_id",
+            "intent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "file_resolve"
+            },
+            "root": {
+              "$ref": "#/$defs/File"
+            },
+            "purpose": {
+              "$ref": "#/$defs/ResolvePurpose"
+            }
+          },
+          "required": [
+            "method",
+            "root",
+            "purpose"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "lease_observe"
+            },
+            "owner": {
+              "$ref": "#/$defs/LeaseOwner"
+            }
+          },
+          "required": [
+            "method",
+            "owner"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "git_existing"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "expected": {
+              "$ref": "#/$defs/GitState"
+            },
+            "command": {
+              "$ref": "#/$defs/GitCommand"
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "expected",
+            "command"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "git_read"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "query": {
+              "enum": [
+                "Upstream",
+                "StatusShort",
+                "StatusPorcelain",
+                "Head",
+                "HeadSymbolic",
+                "Inside",
+                "Refs",
+                "Stashes",
+                "Remotes",
+                "Diff",
+                "StagedDiff",
+                "Log",
+                "Graph"
+              ]
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "query"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Entry": {
+      "type": "object",
+      "properties": {
+        "file": {
+          "$ref": "#/$defs/File"
+        },
+        "display_name": {
+          "type": "string"
+        },
+        "kind": {
+          "enum": [
+            "File",
+            "Directory",
+            "Symlink",
+            "Other"
+          ]
+        }
+      },
+      "required": [
+        "file",
+        "display_name",
+        "kind"
+      ],
+      "additionalProperties": false
+    },
+    "GitEntry": {
+      "type": "object",
+      "properties": {
+        "path_base64": {
+          "type": "string"
+        },
+        "previous_path": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "status": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "path_base64",
+        "previous_path",
+        "status"
+      ],
+      "additionalProperties": false
+    },
+    "Commit": {
+      "type": "object",
+      "properties": {
+        "lane": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "parent_lanes": {
+          "type": "array",
+          "items": {
+            "type": "integer",
+            "minimum": 0
+          }
+        },
+        "author": {
+          "type": "string"
+        },
+        "authored_at": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "oid": {
+          "type": "string"
+        },
+        "parents": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "decorations": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "subject": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "lane",
+        "parent_lanes",
+        "author",
+        "authored_at",
+        "message",
+        "oid",
+        "parents",
+        "decorations",
+        "subject"
+      ],
+      "additionalProperties": false
+    },
+    "NetworkIntent": {
+      "type": "object",
+      "properties": {
+        "action": {
+          "enum": [
+            "Fetch",
+            "Push",
+            "PullFastForward"
+          ]
+        },
+        "remote": {
+          "type": "string"
+        },
+        "reference": {
+          "type": "string"
+        },
+        "endpoint_fingerprint": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{64}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "push_mapping_unconfigured": {
+          "type": "boolean"
+        }
+      },
+      "required": [
+        "action",
+        "remote",
+        "reference",
+        "endpoint_fingerprint",
+        "push_mapping_unconfigured"
+      ],
+      "additionalProperties": false
+    },
+    "NetworkObservation": {
+      "type": "object",
+      "properties": {
+        "remote_oid": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "remote_refs": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "local_refs": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "fetch_head": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        },
+        "fetch_head_oids": {
+          "type": "string"
+        }
+      },
+      "required": [
+        "remote_oid",
+        "remote_refs",
+        "local_refs",
+        "fetch_head",
+        "fetch_head_oids"
+      ],
+      "additionalProperties": false
+    },
+    "Observation": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "unobserved"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "file"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            },
+            "version": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Version"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "digest": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "pattern": "^[0-9a-fA-F]{64}$"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "file",
+            "version",
+            "digest"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "git"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "state": {
+              "$ref": "#/$defs/GitState"
+            }
+          },
+          "required": [
+            "kind",
+            "worktree",
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "git_network"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "state": {
+              "$ref": "#/$defs/GitState"
+            },
+            "intent": {
+              "$ref": "#/$defs/NetworkIntent"
+            },
+            "observation": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/NetworkObservation"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "worktree",
+            "state",
+            "intent",
+            "observation"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ResultValue": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "saved"
+            },
+            "revision": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "version": {
+              "$ref": "#/$defs/Version"
+            }
+          },
+          "required": [
+            "kind",
+            "revision",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "file_changed"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            },
+            "version": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Version"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "file",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "git_changed"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "state": {
+              "$ref": "#/$defs/GitState"
+            }
+          },
+          "required": [
+            "kind",
+            "worktree",
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "terminal_opened"
+            },
+            "session_id": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "runtime_generation": {
+              "type": "string",
+              "format": "uuid"
+            },
+            "container_start_base64": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "session_id",
+            "runtime_generation",
+            "container_start_base64"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "Receipt": {
+      "type": "object",
+      "properties": {
+        "operation_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        "state": {
+          "enum": [
+            "accepted",
+            "running",
+            "confirmed",
+            "failed",
+            "unknown"
+          ]
+        },
+        "result": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ResultValue"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "code": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "message": {
+          "type": "string"
+        },
+        "possible_effects": {
+          "type": "boolean"
+        },
+        "observed": {
+          "$ref": "#/$defs/Observation"
+        }
+      },
+      "required": [
+        "operation_id",
+        "state",
+        "result",
+        "code",
+        "message",
+        "possible_effects",
+        "observed"
+      ],
+      "additionalProperties": false
+    },
+    "Reply": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "list"
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Entry"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "entries"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "version"
+            },
+            "version": {
+              "$ref": "#/$defs/Version"
+            }
+          },
+          "required": [
+            "kind",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "watch"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            },
+            "event": {
+              "enum": [
+                "changed",
+                "removed",
+                "rescan_required"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "file",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "search_match"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            },
+            "line": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "column_utf8": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "preview": {
+              "type": "string"
+            },
+            "version": {
+              "$ref": "#/$defs/Version"
+            },
+            "digest": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{64}$"
+            }
+          },
+          "required": [
+            "kind",
+            "file",
+            "line",
+            "column_utf8",
+            "preview",
+            "version",
+            "digest"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "search_progress"
+            },
+            "files": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "matches": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "kind",
+            "files",
+            "matches"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "search_complete"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "search_cancelled"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "search_limited"
+            },
+            "maximum": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "kind",
+            "maximum"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "discovered"
+            },
+            "worktree": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Worktree"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "worktree"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "contains"
+            },
+            "value": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "value"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "status"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "state": {
+              "$ref": "#/$defs/GitState"
+            },
+            "staged": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GitEntry"
+              }
+            },
+            "unstaged": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GitEntry"
+              }
+            },
+            "untracked": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GitEntry"
+              }
+            },
+            "conflicts": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/GitEntry"
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "worktree",
+            "state",
+            "staged",
+            "unstaged",
+            "untracked",
+            "conflicts"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "diff"
+            },
+            "source": {
+              "$ref": "#/$defs/DiffSource"
+            },
+            "content": {
+              "enum": [
+                "Text",
+                "Binary",
+                "Unavailable"
+              ]
+            },
+            "unavailable": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "change": {
+              "enum": [
+                "Modified",
+                "Added",
+                "Deleted",
+                "Renamed",
+                "Conflicted"
+              ]
+            },
+            "previous_path": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "expected": {
+              "$ref": "#/$defs/GitState"
+            },
+            "bytes_base64": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "source",
+            "content",
+            "unavailable",
+            "change",
+            "previous_path",
+            "expected",
+            "bytes_base64"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "history"
+            },
+            "commits": {
+              "type": "array",
+              "items": {
+                "$ref": "#/$defs/Commit"
+              }
+            },
+            "continuation_edges": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "prefixItems": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "string"
+                  }
+                ],
+                "minItems": 2,
+                "maxItems": 2
+              }
+            },
+            "next_cursor": {
+              "anyOf": [
+                {
+                  "type": "string"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "commits",
+            "continuation_edges",
+            "next_cursor"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "receipt"
+            },
+            "receipt": {
+              "$ref": "#/$defs/Receipt"
+            }
+          },
+          "required": [
+            "kind",
+            "receipt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "error"
+            },
+            "code": {
+              "type": "string"
+            },
+            "message": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "code",
+            "message"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "terminal_ack"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "terminal"
+            },
+            "event": {
+              "$ref": "#/$defs/TerminalEvent"
+            }
+          },
+          "required": [
+            "kind",
+            "event"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "file_resolved"
+            },
+            "root": {
+              "$ref": "#/$defs/File"
+            },
+            "file": {
+              "$ref": "#/$defs/File"
+            },
+            "resolved_path": {
+              "type": "string"
+            },
+            "node_kind": {
+              "anyOf": [
+                {
+                  "enum": [
+                    "File",
+                    "Directory",
+                    "Symlink",
+                    "Other"
+                  ]
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "version": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Version"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "root",
+            "file",
+            "resolved_path",
+            "node_kind",
+            "version"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "lease_observed"
+            },
+            "owner": {
+              "$ref": "#/$defs/LeaseOwner"
+            },
+            "runtime_generation": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+            },
+            "presence": {
+              "$ref": "#/$defs/OwnerPresence"
+            },
+            "workers_retired": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "owner",
+            "runtime_generation",
+            "presence",
+            "workers_retired"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "git_existing"
+            },
+            "receipt": {
+              "anyOf": [
+                {
+                  "$ref": "#/$defs/Receipt"
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "receipt"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "git_read"
+            },
+            "stdout_base64": {
+              "type": "string"
+            },
+            "stderr_base64": {
+              "type": "string"
+            },
+            "success": {
+              "type": "boolean"
+            }
+          },
+          "required": [
+            "kind",
+            "stdout_base64",
+            "stderr_base64",
+            "success"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "TerminalEvent": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "output"
+            },
+            "sequence": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "bytes_base64": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "sequence",
+            "bytes_base64"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "gap"
+            },
+            "first": {
+              "type": "integer",
+              "minimum": 0
+            },
+            "last": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "kind",
+            "first",
+            "last"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "process_exit"
+            },
+            "code": {
+              "type": [
+                "integer",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "code"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "ended"
+            },
+            "intent": {
+              "enum": [
+                "explicit_close",
+                "final_workspace_close",
+                "retention_expiry"
+              ]
+            }
+          },
+          "required": [
+            "kind",
+            "intent"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "disconnected"
+            },
+            "expires_at_unix_seconds": {
+              "type": "integer",
+              "minimum": 0
+            }
+          },
+          "required": [
+            "kind",
+            "expires_at_unix_seconds"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "reattached"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "expired"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "runtime_lost"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "ResolvePurpose": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "root"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "open_child"
+            },
+            "path_base64": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "path_base64"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "mutation_node"
+            },
+            "path_base64": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "path_base64"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "LeaseOwner": {
+      "type": "object",
+      "properties": {
+        "client_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        "workspace_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        "lease_id": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        "runtime_generation": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        "target_binding": {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{64}$"
+        }
+      },
+      "required": [
+        "client_id",
+        "workspace_id",
+        "lease_id",
+        "runtime_generation",
+        "target_binding"
+      ],
+      "additionalProperties": false
+    },
+    "OwnerPresence": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "active"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "detached"
+            },
+            "remaining_millis": {
+              "type": "integer",
+              "minimum": 0,
+              "maximum": 1800000
+            }
+          },
+          "required": [
+            "state",
+            "remaining_millis"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "absent"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "state": {
+              "const": "runtime_lost"
+            }
+          },
+          "required": [
+            "state"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

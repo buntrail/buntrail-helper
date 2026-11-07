@@ -1,0 +1,34 @@
+name: Crate checks
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  unix:
+    strategy:
+      matrix:
+        os: [macos-15, ubuntu-24.04]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.99.1
+          components: rustfmt, clippy
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y git zsh python3
+      - run: cargo install ripgrep --version 15.1.0 --locked
+      - run: cargo fetch
+      - run: scripts/check.sh
+      - run: cargo publish --dry-run
+  windows:
+    runs-on: windows-2022
+    steps:
+      - uses: actions/checkout@v4
+      - uses: dtolnay/rust-toolchain@master
+        with:
+          toolchain: 1.99.1
+      - run: cargo check --all-targets --all-features
+      - run: cargo test --all-features
+        env:
+          BUNTRAIL_STATE_DIR: ${{ runner.temp }}/buntrail-test-state
+          RUST_TEST_THREADS: 1

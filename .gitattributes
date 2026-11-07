@@ -1,0 +1,2 @@
+# Preserve source and fixture encoding/newlines exactly as authored.
+* -text

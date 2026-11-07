@@ -1,0 +1,278 @@
+[
+  {
+    "file": "valid-hello.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-terminal.bin",
+    "valid": true
+  },
+  {
+    "file": "partial-prefix.bin",
+    "valid": false
+  },
+  {
+    "file": "partial-header.bin",
+    "valid": false
+  },
+  {
+    "file": "partial-payload.bin",
+    "valid": false
+  },
+  {
+    "file": "unknown-major.bin",
+    "valid": false
+  },
+  {
+    "file": "oversized-header.bin",
+    "valid": false
+  },
+  {
+    "file": "oversized-payload.bin",
+    "valid": false
+  },
+  {
+    "file": "malformed-json.bin",
+    "valid": false
+  },
+  {
+    "file": "mismatched-ids.bin",
+    "valid": false
+  },
+  {
+    "file": "unknown-field.bin",
+    "valid": false
+  },
+  {
+    "file": "invalid-cancel-zero.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-welcome.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-register.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-credit.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-credit-zero.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-receipt-unknown.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-cancel-result.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-service-list.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-service-nullable.bin",
+    "valid": false
+  },
+  {
+    "file": "invalid-service-bypass.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-authentication.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-authentication-nullable.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-service-event.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-service-inspect-id.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-terminal-open.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-terminal-open-operation.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-terminal-ended.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-terminal-input.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-file-resolve.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-file-resolve-purpose.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-file-resolved.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-lease-observe.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-lease-observe-runtime-null.bin",
+    "valid": false
+  },
+  {
+    "file": "invalid-lease-observe-operation.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-lease-observed-active.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-lease-observed-detached.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-lease-observed-absent.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-lease-observed-runtime_lost.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-git-existing.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-git-existing-no-operation.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-git-existing-missing.bin",
+    "valid": true
+  },
+  {
+    "file": "valid-save-owned.bin",
+    "valid": true
+  },
+  {
+    "file": "invalid-save-owned-no-lease.bin",
+    "valid": false
+  },
+  {
+    "file": "invalid-save-owned-no-operation.bin",
+    "valid": false
+  },
+  {
+    "file": "valid-save-legacy.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-lookup-begin.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-lookup-ready.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-ready.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-observe-begin.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-approvals-begin.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-output-begin.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-prepared.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-cancel.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-release.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-lookup-chunk.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-lookup-end.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-original-chunk.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-original-end.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-approvals-chunk.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-approvals-end.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-aliases-chunk.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-aliases-end.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-output-chunk.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-output-end.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-existing.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-existing-only-begin.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-missing.bin",
+    "valid": true
+  },
+  {
+    "file": "proof-missing-no-operation.bin",
+    "valid": false
+  }
+]

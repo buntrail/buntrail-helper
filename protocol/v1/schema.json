@@ -1,0 +1,2248 @@
+{
+  "type": "object",
+  "properties": {
+    "major": {
+      "const": 1
+    },
+    "minor": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "request_id": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "context": {
+      "anyOf": [
+        {
+          "type": "object",
+          "properties": {
+            "workspace_id": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+            },
+            "client_id": {
+              "type": "string",
+              "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+            },
+            "target_binding": {
+              "type": "string",
+              "minLength": 1
+            },
+            "runtime_generation": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "workspace_id",
+            "client_id",
+            "target_binding",
+            "runtime_generation"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "operation_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "stream_id": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "sequence": {
+      "type": [
+        "integer",
+        "null"
+      ],
+      "minimum": 0
+    },
+    "kind": {
+      "enum": [
+        "hello",
+        "file.list",
+        "file.read.begin",
+        "file.read.chunk",
+        "file.read.end",
+        "file.upload.begin",
+        "file.upload.chunk",
+        "file.upload.end",
+        "file.save.commit",
+        "file.save.commit_owned",
+        "operation.inspect",
+        "cancel",
+        "error",
+        "terminal.output",
+        "welcome",
+        "lease.register",
+        "lease.release",
+        "ack",
+        "stream.credit",
+        "file.read",
+        "operation.receipt",
+        "cancel.result",
+        "service.call",
+        "service.event",
+        "file.create.commit",
+        "connection.authentication",
+        "proof.lookup.begin",
+        "proof.lookup.ready",
+        "proof.ready",
+        "proof.observe.begin",
+        "proof.approvals.begin",
+        "proof.output.begin",
+        "proof.prepared",
+        "proof.existing",
+        "proof.cancel",
+        "proof.release",
+        "proof.lookup.chunk",
+        "proof.lookup.end",
+        "proof.original.chunk",
+        "proof.original.end",
+        "proof.approvals.chunk",
+        "proof.approvals.end",
+        "proof.aliases.chunk",
+        "proof.aliases.end",
+        "proof.output.chunk",
+        "proof.output.end",
+        "proof.missing"
+      ]
+    },
+    "metadata": {
+      "type": "object"
+    }
+  },
+  "required": [
+    "major",
+    "minor",
+    "request_id",
+    "context",
+    "operation_id",
+    "stream_id",
+    "sequence",
+    "kind",
+    "metadata"
+  ],
+  "additionalProperties": false,
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "title": "Buntrail remote control header 1.0",
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "hello"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "max_header": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65536
+              },
+              "max_payload": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1048576
+              }
+            },
+            "required": [
+              "capabilities",
+              "max_header",
+              "max_payload"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.list"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "path_base64": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path_base64"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.read.begin"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "path_base64": {
+                "type": "string"
+              },
+              "version": {
+                "type": "string"
+              },
+              "total_length": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "transfer_id",
+              "path_base64",
+              "version",
+              "total_length"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.read.chunk"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "transfer_id",
+              "offset"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.read.end"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "sha256"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.upload.begin"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "path_base64": {
+                "type": "string"
+              },
+              "total_length": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "transfer_id",
+              "path_base64",
+              "total_length"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.upload.chunk"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0
+              }
+            },
+            "required": [
+              "transfer_id",
+              "offset"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.upload.end"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "sha256"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.save.commit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "submitted_revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expected_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              }
+            },
+            "required": [
+              "transfer_id",
+              "submitted_revision",
+              "expected_version"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "operation.inspect"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "operation_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "operation_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "cancel"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "request_id": {
+                "type": "integer",
+                "minimum": 1
+              }
+            },
+            "required": [
+              "request_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "error"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "code": {
+                "type": "string"
+              },
+              "safe_message": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "code",
+              "safe_message"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "terminal.output"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "session_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "session_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "welcome"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "capabilities": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "max_header": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 65536
+              },
+              "max_payload": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 1048576
+              },
+              "initial_credit": {
+                "const": 524288
+              },
+              "target_binding": {
+                "type": "string",
+                "minLength": 1
+              },
+              "runtime_generation": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "container_start_base64": {
+                "type": "string",
+                "minLength": 4,
+                "maxLength": 344,
+                "contentEncoding": "base64"
+              }
+            },
+            "required": [
+              "capabilities",
+              "max_header",
+              "max_payload",
+              "initial_credit",
+              "target_binding",
+              "runtime_generation"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "lease.register"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "lease_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "client_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "workspace_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "target_binding": {
+                "type": "string",
+                "minLength": 1
+              },
+              "runtime_generation": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "lease_id",
+              "client_id",
+              "workspace_id",
+              "target_binding",
+              "runtime_generation"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "lease.release"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "lease_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "intent": {
+                "enum": [
+                  "view_detachment",
+                  "resolved_workspace_closure"
+                ]
+              }
+            },
+            "required": [
+              "lease_id",
+              "intent"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "ack"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {},
+            "required": [],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "stream.credit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "bytes": {
+                "type": "integer",
+                "minimum": 1,
+                "maximum": 524288
+              }
+            },
+            "required": [
+              "bytes"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.read"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "path_base64": {
+                "type": "string"
+              }
+            },
+            "required": [
+              "path_base64"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "operation.receipt"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "state": {
+                "enum": [
+                  "accepted",
+                  "running",
+                  "confirmed",
+                  "failed",
+                  "unknown"
+                ]
+              },
+              "saved_version": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "opaque_token": {
+                        "type": "string"
+                      },
+                      "content_digest": {
+                        "type": "string",
+                        "pattern": "^[0-9a-fA-F]{64}$"
+                      },
+                      "file_identity": {
+                        "type": "string"
+                      }
+                    },
+                    "required": [
+                      "opaque_token",
+                      "content_digest",
+                      "file_identity"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "saved_revision": {
+                "anyOf": [
+                  {
+                    "type": "integer",
+                    "minimum": 0
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "safe_message": {
+                "type": "string"
+              },
+              "failure": {
+                "anyOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "code": {
+                        "type": "string"
+                      },
+                      "effect": {
+                        "enum": [
+                          "proven_no_effect",
+                          "possible_partial_effects"
+                        ]
+                      }
+                    },
+                    "required": [
+                      "code",
+                      "effect"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              },
+              "observed": {
+                "oneOf": [
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "unobserved"
+                      }
+                    },
+                    "required": [
+                      "kind"
+                    ],
+                    "additionalProperties": false
+                  },
+                  {
+                    "type": "object",
+                    "properties": {
+                      "kind": {
+                        "const": "file"
+                      },
+                      "path_base64": {
+                        "type": "string"
+                      },
+                      "version": {
+                        "anyOf": [
+                          {
+                            "type": "object",
+                            "properties": {
+                              "opaque_token": {
+                                "type": "string"
+                              },
+                              "content_digest": {
+                                "type": "string",
+                                "pattern": "^[0-9a-fA-F]{64}$"
+                              },
+                              "file_identity": {
+                                "type": "string"
+                              }
+                            },
+                            "required": [
+                              "opaque_token",
+                              "content_digest",
+                              "file_identity"
+                            ],
+                            "additionalProperties": false
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      },
+                      "digest": {
+                        "anyOf": [
+                          {
+                            "type": "string",
+                            "pattern": "^[0-9a-fA-F]{64}$"
+                          },
+                          {
+                            "type": "null"
+                          }
+                        ]
+                      }
+                    },
+                    "required": [
+                      "kind",
+                      "path_base64",
+                      "version",
+                      "digest"
+                    ],
+                    "additionalProperties": false
+                  }
+                ]
+              }
+            },
+            "required": [
+              "state",
+              "saved_version",
+              "saved_revision",
+              "safe_message",
+              "failure",
+              "observed"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "cancel.result"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "outcome": {
+                "enum": [
+                  "confirmed_cancel",
+                  "unknown"
+                ]
+              }
+            },
+            "required": [
+              "outcome"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "enum": [
+              "hello",
+              "welcome",
+              "lease.register"
+            ]
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "context": {
+            "type": "null"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "context": {
+            "type": "object",
+            "properties": {
+              "workspace_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "client_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "target_binding": {
+                "type": "string",
+                "minLength": 1
+              },
+              "runtime_generation": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "required": [
+              "workspace_id",
+              "client_id",
+              "target_binding",
+              "runtime_generation"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "service.call"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "call": {
+                "$ref": "https://buntrail.invalid/protocol/v1/services.schema.json#/$defs/Call"
+              }
+            },
+            "required": [
+              "call"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "service.event"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "offset": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "total_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 33554432
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              },
+              "terminal": {
+                "type": "boolean"
+              }
+            },
+            "required": [
+              "offset",
+              "total_length",
+              "sha256",
+              "terminal"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.create.commit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "transfer_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "connection.authentication"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "ssh_auth_sock": {
+                "anyOf": [
+                  {
+                    "type": "string"
+                  },
+                  {
+                    "type": "null"
+                  }
+                ]
+              }
+            },
+            "required": [
+              "ssh_auth_sock"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "service.call"
+          },
+          "metadata": {
+            "properties": {
+              "call": {
+                "properties": {
+                  "method": {
+                    "enum": [
+                      "inspect",
+                      "file_mutate",
+                      "git_mutate",
+                      "terminal_open",
+                      "git_existing"
+                    ]
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.create.commit"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "service.event"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "service.call"
+          },
+          "metadata": {
+            "properties": {
+              "call": {
+                "properties": {
+                  "method": {
+                    "const": "lease_observe"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation_id": {
+            "type": "null"
+          },
+          "stream_id": {
+            "type": "null"
+          },
+          "sequence": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.save.commit_owned"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "submitted_revision": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "expected_version": {
+                "type": [
+                  "string",
+                  "null"
+                ]
+              },
+              "lease_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "submitted_revision",
+              "expected_version",
+              "lease_id"
+            ],
+            "additionalProperties": false
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "file.save.commit_owned"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.lookup.begin"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "total_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              },
+              "action": {
+                "enum": [
+                  "prepare",
+                  "execute",
+                  "lookup"
+                ]
+              },
+              "lease_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "total_length",
+              "action",
+              "lease_id"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.lookup.ready"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "credit": {
+                "const": 65536
+              }
+            },
+            "required": [
+              "credit"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.ready"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "original_transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "approvals_transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "original_transfer_id",
+              "approvals_transfer_id"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.observe.begin"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "total_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              },
+              "lease_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "worktree": {
+                "$ref": "services.schema.json#/$defs/Worktree"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "total_length",
+              "lease_id",
+              "worktree"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "null"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.approvals.begin"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "total_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              },
+              "proof_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "alias_digest": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "total_length",
+              "proof_id",
+              "alias_digest"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.output.begin"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "total_length": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              }
+            },
+            "required": [
+              "transfer_id",
+              "total_length"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "null"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.prepared"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "plan_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "plan_id"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.existing"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "receipt": {
+                "$ref": "services.schema.json#/$defs/Receipt"
+              }
+            },
+            "required": [
+              "receipt"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.cancel"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "lease_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "plan_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "lease_id",
+              "plan_id"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "null"
+          },
+          "stream_id": {
+            "type": "null"
+          },
+          "sequence": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.release"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "lease_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "observation_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              }
+            },
+            "required": [
+              "lease_id",
+              "observation_id"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "null"
+          },
+          "stream_id": {
+            "type": "null"
+          },
+          "sequence": {
+            "type": "null"
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.lookup.chunk"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              }
+            },
+            "required": [
+              "transfer_id",
+              "offset"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.lookup.end"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.original.chunk"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              }
+            },
+            "required": [
+              "transfer_id",
+              "offset"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.original.end"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.approvals.chunk"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              }
+            },
+            "required": [
+              "transfer_id",
+              "offset"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.approvals.end"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.aliases.chunk"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              }
+            },
+            "required": [
+              "transfer_id",
+              "offset"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.aliases.end"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.output.chunk"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "offset": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 18446744073709551615
+              }
+            },
+            "required": [
+              "transfer_id",
+              "offset"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "null"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.output.end"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {
+              "transfer_id": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-fA-F]{64}$"
+              }
+            },
+            "required": [
+              "transfer_id",
+              "sha256"
+            ],
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "null"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 18446744073709551615
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "kind": {
+            "const": "proof.missing"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "metadata": {
+            "type": "object",
+            "properties": {},
+            "additionalProperties": false
+          },
+          "context": {
+            "type": "object"
+          },
+          "operation_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "stream_id": {
+            "type": "string",
+            "pattern": "^[0-9a-fA-F]{8}(-[0-9a-fA-F]{4}){3}-[0-9a-fA-F]{12}$"
+          },
+          "sequence": {
+            "type": "null"
+          }
+        }
+      }
+    }
+  ],
+  "$id": "https://buntrail.invalid/protocol/v1/header.schema.json"
+}

@@ -1,0 +1,30 @@
+[package]
+name = "buntrail-helper"
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.99.1"
+description = "Remote services library and helper executable."
+license = "MIT"
+repository = "https://github.com/buntrail/buntrail-helper"
+homepage = "https://github.com/buntrail"
+documentation = "https://docs.rs/buntrail-helper"
+readme = "README.md"
+authors = ["Bunga Mungil <bungamungil@icloud.com>"]
+
+[features]
+test-support = []
+
+[dependencies]
+buntrail-protocol = "0.1.0"
+buntrail-core = "0.1.0"
+serde = { version = "=1.0.229", features = ["derive"] }
+sha2 = "=0.10.9"
+base64 = "=0.22.1"
+futures-core = "=0.3.31"
+tempfile = "=3.27.0"
+buntrail-services = "0.1.0"
+serde_json = "=1.0.154"
+libc = "=0.2.191"
+
+[dev-dependencies]
+tempfile = "=3.27.0"
