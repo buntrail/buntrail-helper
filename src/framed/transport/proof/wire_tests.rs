@@ -10,6 +10,9 @@ struct Wire {
 }
 impl Wire {
     fn new(negotiate: bool) -> Self {
+        Self::capabilities(negotiate, true)
+    }
+    fn capabilities(negotiate: bool, repository: bool) -> Self {
         let (dir, dispatcher, original) =
             crate::framed::services::worktree_guard_tests::fixture(false);
         std::fs::create_dir(dir.path().join("uploads")).unwrap();
@@ -47,7 +50,10 @@ impl Wire {
             message: Message::Hello {
                 capabilities: buntrail_protocol::negotiation::CAPABILITIES
                     .iter()
-                    .filter(|c| negotiate || **c != "git.worktree_proof")
+                    .filter(|c| {
+                        (negotiate || **c != "git.worktree_proof")
+                            && (repository || **c != "git.repository.v1")
+                    })
                     .map(|c| c.to_string())
                     .collect(),
                 max_header: 65536,
@@ -843,7 +849,8 @@ fn expired_original_and_normal_replay_do_not_renew_on_incoming_bytes() {
                     payload: body
                 },
                 &mut Vec::new(),
-                None
+                None,
+                true,
             )
             .is_err()
     );
@@ -1186,4 +1193,51 @@ fn existing_only_capability_does_not_require_new_work_authority() {
         Message::ProofMissing {}
     ));
     assert_eq!(wire.shared.requests.load(Ordering::SeqCst), 0);
+}
+
+#[test]
+fn unnegotiated_repository_calls_are_refused_without_losing_connection() {
+    use buntrail_protocol::services::{Call, GitCommand, GitState, Worktree};
+    let mut wire = Wire::capabilities(true, false);
+    let worktree = Worktree::from_core(&wire.original.worktree).unwrap();
+    let command = GitCommand::from_core(&GitMutation::Repository(
+        buntrail_core::contracts::RepositoryAction::SwitchBranch {
+            name: b"main".to_vec(),
+            expected_oid: "a".repeat(40),
+        },
+    ))
+    .unwrap();
+    for call in [
+        Call::Repository {
+            worktree: worktree.clone(),
+        },
+        Call::GitExisting {
+            worktree: worktree.clone(),
+            expected: GitState::from_core(&wire.original.expected),
+            command,
+        },
+    ] {
+        wire.header.request_id += 1;
+        wire.header.operation_id = if matches!(call, Call::GitExisting { .. }) {
+            Some(uuid(wire.original.operation.0))
+        } else {
+            None
+        };
+        wire.header.message = Message::ServiceCall { call };
+        wire.send(Vec::new());
+        assert!(matches!(
+            wire.receive().unwrap().header.message,
+            Message::Error { .. }
+        ));
+    }
+    wire.header.request_id += 1;
+    wire.header.operation_id = None;
+    wire.header.message = Message::Authentication {
+        ssh_auth_sock: None,
+    };
+    wire.send(Vec::new());
+    assert!(matches!(
+        wire.receive().unwrap().header.message,
+        Message::Ack {}
+    ));
 }

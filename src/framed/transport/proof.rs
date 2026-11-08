@@ -573,6 +573,7 @@ impl Normal {
         frame: Frame,
         pending: &mut Vec<Pending>,
         authentication: Option<std::ffi::OsString>,
+        repository_capability: bool,
     ) -> Result<Option<(Box<Self>, Frame)>, CoreError> {
         if !self.current() || !self.accepts(&frame.header) {
             return Err(unavailable("proof transfer owner expired or changed"));
@@ -752,6 +753,13 @@ impl Normal {
                                 &identity,
                                 state.dispatcher.files.target(),
                             )?;
+                            if matches!(request.command, GitMutation::Repository(_))
+                                && !repository_capability
+                            {
+                                return Err(unavailable(
+                                    "Repository capability was not negotiated",
+                                ));
+                            }
                             drop(original);
                             let message = match action {
                                 ProofAction::Lookup => {

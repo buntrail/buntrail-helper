@@ -23,6 +23,50 @@ impl Dispatcher {
         let t = self.files.target();
         let operation = || operation.ok_or_else(w::invalid);
         let result = match call {
+            w::Call::Repository { worktree } => w::Reply::Repository {
+                snapshot: Box::new(self.git.repository_sync(worktree.core(t)?, cancel)?),
+            },
+            w::Call::Commit {
+                worktree,
+                oid,
+                cursor,
+            } => w::Reply::Commit {
+                page: self.git.commit_sync(
+                    CommitQuery {
+                        worktree: worktree.core(t)?,
+                        oid,
+                        cursor,
+                    },
+                    cancel,
+                )?,
+            },
+            w::Call::FilteredHistory {
+                worktree,
+                refs,
+                cursor,
+                filter,
+            } => {
+                let page = self.git.history_sync(
+                    HistoryQuery {
+                        worktree: worktree.core(t)?,
+                        ref_filter: refs
+                            .iter()
+                            .map(|v| B64.decode(v).map_err(|_| w::invalid()))
+                            .collect::<Result<_, _>>()?,
+                        cursor: cursor
+                            .map(|v| B64.decode(v).map_err(|_| w::invalid()))
+                            .transpose()?,
+                        filter: Some(filter),
+                    },
+                    cancel,
+                )?;
+                w::Reply::History {
+                    commits: page.commits.iter().map(w::Commit::from_core).collect(),
+                    continuation_edges: page.continuation_edges,
+                    next_cursor: page.next_cursor.map(|v| B64.encode(v)),
+                }
+            }
+
             w::Call::FileResolve { root, purpose } => {
                 let result = self.files.resolve_sync(root.core(t)?, purpose.core()?)?;
                 w::Reply::FileResolved {
@@ -191,6 +235,7 @@ impl Dispatcher {
             } => {
                 let h = self.git.history_sync(
                     HistoryQuery {
+                        filter: None,
                         worktree: worktree.core(t)?,
                         ref_filter: refs
                             .iter()
@@ -236,10 +281,7 @@ impl Dispatcher {
                     expected: expected.core()?,
                     command: command.core()?,
                 };
-                let receipt = if matches!(
-                    request.command,
-                    GitMutation::Checkout { .. } | GitMutation::PullFastForward { .. }
-                ) {
+                let receipt = if request.command.changes_worktree() {
                     self.git.refuse_unprepared_worktree_sync(&request)?
                 } else {
                     self.git.mutate_sync(request, cancel)

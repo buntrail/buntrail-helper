@@ -1048,6 +1048,20 @@ pub(crate) fn connection(
                                         "mutation admission paused until storage maintenance succeeds",
                                     )?)
                                 }
+                                Message::ServiceCall { call }
+                                    if call.requires_repository()
+                                        && !negotiated
+                                            .as_ref()
+                                            .unwrap()
+                                            .supports("git.repository.v1") =>
+                                {
+                                    Some(admission_refusal(
+                                        shared,
+                                        h,
+                                        ErrorCode::Unavailable,
+                                        "Repository capability was not negotiated",
+                                    )?)
+                                }
                                 _ if proof::is_message(&h.message)
                                     && !negotiated
                                         .as_ref()
@@ -1153,6 +1167,10 @@ pub(crate) fn connection(
                                             frame,
                                             &mut pending,
                                             authentication.clone(),
+                                            negotiated
+                                                .as_ref()
+                                                .unwrap()
+                                                .supports("git.repository.v1"),
                                         ) {
                                             Ok(Some((normal, response))) => Some(
                                                 match insert_proof_upload(&mut uploads, normal) {
