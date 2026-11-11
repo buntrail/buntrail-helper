@@ -115,6 +115,15 @@ impl Dispatcher {
                 command,
             } => {
                 let command = match command {
+                    w::FileCommand::Trash {
+                        confirmed_target,
+                        confirmed_path,
+                    } => {
+                        if confirmed_target != binding || confirmed_path != file.path_base64 {
+                            return Err(w::invalid());
+                        }
+                        FileMutation::Trash
+                    }
                     w::FileCommand::CreateDirectory => FileMutation::CreateDirectory,
                     w::FileCommand::Rename { destination } => FileMutation::Rename {
                         destination: w::target_path(&destination)?,

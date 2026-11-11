@@ -1,6 +1,6 @@
 # Release guide
 
-These are development packages, initially version 0.1.0. Repository names match
+These are development packages, currently version 0.3.0. Repository names match
 crate names under https://github.com/buntrail. No publication is automated.
 
 Publish in order: buntrail-core; buntrail-language, buntrail-protocol and
@@ -23,7 +23,7 @@ cargo publish
 
 Commit the resulting Cargo.lock for reproducible developer checks, especially
 for executable packages. Do not copy a parent workspace lockfile containing local
-patches and call it registry verification. Tag the published commit v0.1.0 and
+patches and call it registry verification. Tag the published commit v0.3.0 and
 update CHANGELOG.md. Re-run the dry run after any change.
 
 Before the first publication, dependent repositories cannot resolve unpublished

@@ -1,6 +1,6 @@
 [package]
 name = "buntrail-helper"
-version = "0.2.0"
+version = "0.3.0"
 edition = "2024"
 rust-version = "1.99.1"
 description = "Remote services library and helper executable."
@@ -15,14 +15,14 @@ authors = ["Bunga Mungil <bungamungil@icloud.com>"]
 test-support = []
 
 [dependencies]
-buntrail-protocol = "0.2.0"
-buntrail-core = "0.2.0"
+buntrail-protocol = "0.3.0"
+buntrail-core = "0.3.0"
 serde = { version = "=1.0.229", features = ["derive"] }
 sha2 = "=0.10.9"
 base64 = "=0.22.1"
 futures-core = "=0.3.31"
 tempfile = "=3.27.0"
-buntrail-services = "0.2.0"
+buntrail-services = "0.3.0"
 serde_json = "=1.0.154"
 libc = "=0.2.191"
 
