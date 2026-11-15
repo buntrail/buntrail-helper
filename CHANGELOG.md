@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.0 — Git sidebar
+
+Expose negotiated sidebar reads through the framed dispatcher without replacing retained helpers or replaying mutations.
+
 ## 0.3.0
 
 File-sidebar operations and compatible shared core contracts. C ABI remains version 1.
