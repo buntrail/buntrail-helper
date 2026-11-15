@@ -944,6 +944,54 @@
             "query"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "sidebar_history"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "scope": {
+              "$ref": "#/$defs/HistoryScope"
+            },
+            "cursor": {
+              "type": [
+                "string",
+                "null"
+              ],
+              "maxLength": 87384
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "scope",
+            "cursor"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "commit_summary"
+            },
+            "worktree": {
+              "$ref": "#/$defs/Worktree"
+            },
+            "oid": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "method",
+            "worktree",
+            "oid"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -1951,6 +1999,22 @@
             "success"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "commit_summary"
+            },
+            "summary": {
+              "$ref": "#/$defs/GitCommitSummary"
+            }
+          },
+          "required": [
+            "kind",
+            "summary"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -2231,6 +2295,88 @@
           "additionalProperties": false
         }
       ]
+    },
+    "HistoryScope": {
+      "oneOf": [
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "head"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "all"
+            }
+          },
+          "required": [
+            "kind"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "references"
+            },
+            "refs": {
+              "type": "array",
+              "minItems": 1,
+              "maxItems": 512,
+              "items": {
+                "type": "string",
+                "maxLength": 5464
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "refs"
+          ],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "GitCommitSummary": {
+      "type": "object",
+      "properties": {
+        "oid": {
+          "type": "string"
+        },
+        "changed_file_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "insertion_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "deletion_count": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "binary_file_count": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "oid",
+        "changed_file_count",
+        "insertion_count",
+        "deletion_count",
+        "binary_file_count"
+      ],
+      "additionalProperties": false
     }
   }
 }

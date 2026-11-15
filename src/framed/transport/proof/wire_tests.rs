@@ -13,6 +13,9 @@ impl Wire {
         Self::capabilities(negotiate, true)
     }
     fn capabilities(negotiate: bool, repository: bool) -> Self {
+        Self::with_sidebar(negotiate, repository, true)
+    }
+    fn with_sidebar(negotiate: bool, repository: bool, sidebar: bool) -> Self {
         let (dir, dispatcher, original) =
             crate::framed::services::worktree_guard_tests::fixture(false);
         std::fs::create_dir(dir.path().join("uploads")).unwrap();
@@ -53,6 +56,7 @@ impl Wire {
                     .filter(|c| {
                         (negotiate || **c != "git.worktree_proof")
                             && (repository || **c != "git.repository.v1")
+                            && (sidebar || **c != "git.sidebar.v1")
                     })
                     .map(|c| c.to_string())
                     .collect(),
@@ -1232,6 +1236,45 @@ fn unnegotiated_repository_calls_are_refused_without_losing_connection() {
     }
     wire.header.request_id += 1;
     wire.header.operation_id = None;
+    wire.header.message = Message::Authentication {
+        ssh_auth_sock: None,
+    };
+    wire.send(Vec::new());
+    assert!(matches!(
+        wire.receive().unwrap().header.message,
+        Message::Ack {}
+    ));
+}
+
+#[test]
+fn git_sidebar_unnegotiated_calls_refuse_and_preserve_registered_connection() {
+    use buntrail_protocol::services::{Call, HistoryScope, Worktree};
+    let mut wire = Wire::with_sidebar(true, true, false);
+    let worktree = Worktree::from_core(&wire.original.worktree).unwrap();
+    for call in [
+        Call::SidebarHistory {
+            worktree: worktree.clone(),
+            scope: HistoryScope::All {},
+            cursor: None,
+        },
+        Call::CommitSummary {
+            worktree,
+            oid: "a".repeat(40),
+        },
+    ] {
+        wire.header.message = Message::ServiceCall { call };
+        wire.send(Vec::new());
+        let response = wire.receive().unwrap();
+        let Message::Error { .. } = response.header.message else {
+            panic!("sidebar capability required");
+        };
+        let text = serde_json::to_string(&response.header).unwrap();
+        assert!(
+            text.contains("Git sidebar capability was not negotiated"),
+            "{text}"
+        );
+        wire.header.request_id += 1;
+    }
     wire.header.message = Message::Authentication {
         ssh_auth_sock: None,
     };

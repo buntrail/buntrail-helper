@@ -1049,6 +1049,20 @@ pub(crate) fn connection(
                                     )?)
                                 }
                                 Message::ServiceCall { call }
+                                    if call.requires_sidebar()
+                                        && !negotiated
+                                            .as_ref()
+                                            .unwrap()
+                                            .supports("git.sidebar.v1") =>
+                                {
+                                    Some(admission_refusal(
+                                        shared,
+                                        h,
+                                        ErrorCode::Unavailable,
+                                        "Git sidebar capability was not negotiated",
+                                    )?)
+                                }
+                                Message::ServiceCall { call }
                                     if call.requires_repository()
                                         && !negotiated
                                             .as_ref()

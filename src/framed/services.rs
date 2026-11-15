@@ -23,6 +23,42 @@ impl Dispatcher {
         let t = self.files.target();
         let operation = || operation.ok_or_else(w::invalid);
         let result = match call {
+            w::Call::SidebarHistory {
+                worktree,
+                scope,
+                cursor,
+            } => {
+                let page = self.git.sidebar_history_sync(
+                    GitSidebarHistoryQuery {
+                        worktree: worktree.core(t)?,
+                        scope: scope.core()?,
+                        cursor: cursor
+                            .map(|v| {
+                                if v.len() > 87384 {
+                                    return Err(w::invalid());
+                                }
+                                B64.decode(v).map_err(|_| w::invalid())
+                            })
+                            .transpose()?,
+                    },
+                    cancel,
+                )?;
+                w::Reply::History {
+                    commits: page.commits.iter().map(w::Commit::from_core).collect(),
+                    continuation_edges: page.continuation_edges,
+                    next_cursor: page.next_cursor.map(|v| B64.encode(v)),
+                }
+            }
+            w::Call::CommitSummary { worktree, oid } => w::Reply::CommitSummary {
+                summary: self.git.commit_summary_sync(
+                    CommitQuery {
+                        worktree: worktree.core(t)?,
+                        oid,
+                        cursor: None,
+                    },
+                    cancel,
+                )?,
+            },
             w::Call::Repository { worktree } => w::Reply::Repository {
                 snapshot: Box::new(self.git.repository_sync(worktree.core(t)?, cancel)?),
             },

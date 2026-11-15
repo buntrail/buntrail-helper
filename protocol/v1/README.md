@@ -343,3 +343,13 @@ revalidation. Full environment readiness now requires `git.existing`; missing
 support preserves the active supervisor and reports Unavailable. Remote checkout
 and pull remain unavailable until the target save-proof and document gate are
 composed. This capability grants no alternate execution expectation.
+
+### Git sidebar capability
+
+`git.sidebar.v1` negotiates `sidebar_history` (explicit Head/All/base64 refs scope,
+query-bound opaque cursor) and `commit_summary` (first-parent file/line/binary
+counts). `head` and `all` selectors have no fields; `references` requires 1–512
+refs, at most 4096 decoded bytes each and 32768 combined. Empty selection is a
+client state that issues no request. Unsupported helpers reject these calls;
+existing history and repository operations remain available. No helper is
+replaced while it retains sessions.

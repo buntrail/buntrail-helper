@@ -1,0 +1,14 @@
+{
+  "method": "sidebar_history",
+  "worktree": {
+    "path_base64": "L3JlcG8=",
+    "common_directory_base64": "aWQ="
+  },
+  "scope": {
+    "kind": "references",
+    "refs": [
+      "cmVmcy9oZWFkcy9hLf8="
+    ]
+  },
+  "cursor": null
+}
