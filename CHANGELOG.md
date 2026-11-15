@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.4.2 — Lossless Git snapshots
+
+Align first-party dependencies with the lossless Git snapshot correction; no API changes in this crate.
+
 ## 0.4.1 — Failed-push review
 
 Align first-party dependencies with the corrective 0.4.1 Git sidebar release; no API or behavior changes in this crate.
