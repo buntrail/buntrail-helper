@@ -1488,6 +1488,26 @@ pub(crate) fn connection(
                                     )?
                                 }
                                 Message::ServiceCall {
+                                    call: Call::WelcomeHome {} | Call::WelcomeContainers { .. },
+                                } if !negotiated.as_ref().unwrap().supports("welcome.home") => {
+                                    Some(admission_refusal(
+                                        shared,
+                                        h,
+                                        ErrorCode::Unavailable,
+                                        "Welcome discovery was not negotiated",
+                                    )?)
+                                }
+                                Message::ServiceCall {
+                                    call: Call::WelcomeFolder { .. },
+                                } if !negotiated.as_ref().unwrap().supports("welcome.folder") => {
+                                    Some(admission_refusal(
+                                        shared,
+                                        h,
+                                        ErrorCode::Unavailable,
+                                        "Welcome folder operations were not negotiated",
+                                    )?)
+                                }
+                                Message::ServiceCall {
                                     call: buntrail_protocol::services::Call::FileResolve { .. },
                                 } if !negotiated.as_ref().unwrap().supports("file.resolve") => {
                                     Some(admission_refusal(

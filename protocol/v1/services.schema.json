@@ -992,6 +992,65 @@
             "oid"
           ],
           "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "welcome_home"
+            }
+          },
+          "required": [
+            "method"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "welcome_containers"
+            },
+            "engine": {
+              "enum": [
+                "Docker",
+                "Podman"
+              ]
+            }
+          },
+          "required": [
+            "method",
+            "engine"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "method": {
+              "const": "welcome_folder"
+            },
+            "parent": {
+              "$ref": "#/$defs/File"
+            },
+            "name": {
+              "type": [
+                "string",
+                "null"
+              ]
+            },
+            "repository": {
+              "type": [
+                "string",
+                "null"
+              ]
+            }
+          },
+          "required": [
+            "method",
+            "parent"
+          ],
+          "additionalProperties": false
         }
       ]
     },
@@ -2013,6 +2072,62 @@
           "required": [
             "kind",
             "summary"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "welcome_home"
+            },
+            "path_base64": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "path_base64"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "welcome_folder"
+            },
+            "path_base64": {
+              "type": "string"
+            }
+          },
+          "required": [
+            "kind",
+            "path_base64"
+          ],
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "properties": {
+            "kind": {
+              "const": "welcome_containers"
+            },
+            "entries": {
+              "type": "array",
+              "items": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                },
+                "minItems": 2,
+                "maxItems": 2
+              }
+            }
+          },
+          "required": [
+            "kind",
+            "entries"
           ],
           "additionalProperties": false
         }

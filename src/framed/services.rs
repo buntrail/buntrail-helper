@@ -23,6 +23,55 @@ impl Dispatcher {
         let t = self.files.target();
         let operation = || operation.ok_or_else(w::invalid);
         let result = match call {
+            w::Call::WelcomeContainers { engine } => {
+                use buntrail_services::connections::{
+                    container_engine::ContainerEngineClient, container_identity::ContainerState,
+                    container_transport::EngineHost,
+                };
+                if t.container.is_some() {
+                    return Err(w::invalid());
+                }
+                let host = EngineHost::local(std::sync::Arc::new(AtomicBool::new(false)))?;
+                let entries = ContainerEngineClient::new(host, engine, None, None)?
+                    .list()?
+                    .into_iter()
+                    .filter(|c| c.state == ContainerState::Running)
+                    .map(|c| (c.name, c.immutable_id))
+                    .collect();
+                w::Reply::WelcomeContainers { entries }
+            }
+            w::Call::WelcomeFolder {
+                parent,
+                name,
+                repository,
+            } => {
+                use std::os::unix::ffi::OsStrExt;
+                operation()?;
+                let TargetPath::PosixBytes(bytes) = parent.core(t)?.path else {
+                    return Err(w::invalid());
+                };
+                let path = std::path::Path::new(std::ffi::OsStr::from_bytes(&bytes));
+                let child =
+                    buntrail_services::welcome_folder(path, name.as_deref(), repository.as_deref())
+                        .map_err(|e| CoreError::new(ErrorCode::Unavailable, &e))?;
+                w::Reply::WelcomeFolder {
+                    path_base64: w::path(&TargetPath::posix(
+                        child.as_os_str().as_bytes().to_vec(),
+                    )?)?,
+                }
+            }
+            w::Call::WelcomeHome {} => {
+                let home = std::env::home_dir()
+                    .filter(|p| p.is_absolute())
+                    .ok_or_else(|| {
+                        CoreError::new(ErrorCode::Unavailable, "Target home unavailable")
+                    })?;
+                let path = TargetPath::posix(home.as_os_str().as_encoded_bytes().to_vec())?;
+                w::Reply::WelcomeHome {
+                    path_base64: w::path(&path)?,
+                }
+            }
+
             w::Call::SidebarHistory {
                 worktree,
                 scope,
