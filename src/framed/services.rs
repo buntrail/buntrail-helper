@@ -11,6 +11,36 @@ use std::{
     task::{Context, Poll, Waker},
 };
 
+fn effective_home() -> Result<TargetPath, CoreError> {
+    let mut buffer = vec![0u8; 4096];
+    loop {
+        let mut account = std::mem::MaybeUninit::<libc::passwd>::uninit();
+        let mut result = std::ptr::null_mut();
+        // getpwuid_r stores the returned strings in buffer until this call returns.
+        let status = unsafe {
+            libc::getpwuid_r(
+                libc::geteuid(),
+                account.as_mut_ptr(),
+                buffer.as_mut_ptr().cast(),
+                buffer.len(),
+                &mut result,
+            )
+        };
+        if status == libc::ERANGE && buffer.len() < 1024 * 1024 {
+            buffer.resize(buffer.len() * 2, 0);
+            continue;
+        }
+        if status != 0 || result.is_null() || unsafe { (*result).pw_dir.is_null() } {
+            return Err(CoreError::new(
+                ErrorCode::Unavailable,
+                "Effective user's home directory is unavailable",
+            ));
+        }
+        let bytes = unsafe { std::ffi::CStr::from_ptr((*result).pw_dir) }.to_bytes();
+        return TargetPath::posix(bytes.to_vec());
+    }
+}
+
 impl Dispatcher {
     pub(crate) fn service(
         &self,
@@ -61,12 +91,7 @@ impl Dispatcher {
                 }
             }
             w::Call::WelcomeHome {} => {
-                let home = std::env::home_dir()
-                    .filter(|p| p.is_absolute())
-                    .ok_or_else(|| {
-                        CoreError::new(ErrorCode::Unavailable, "Target home unavailable")
-                    })?;
-                let path = TargetPath::posix(home.as_os_str().as_encoded_bytes().to_vec())?;
+                let path = effective_home()?;
                 w::Reply::WelcomeHome {
                     path_base64: w::path(&path)?,
                 }
